@@ -1,0 +1,1114 @@
+{
+  "info": {
+    "name": "ЛР 2 — Валидация REST-сервиса",
+    "description": "Раздел 3 лабораторной работы. Выполняйте запросы по номерам. Для каждой отрицательной проверки ожидается HTTP 400. Поле идентификатора называется uid согласно таблице 1.1.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8082",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "01 Успешные запросы",
+      "item": [
+        {
+          "name": "01 — Все поля заполнены",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"uid\": \"1\",\n  \"operationUid\": \"operation-1\",\n  \"systemTime\": \"2026-10-06T10:00:00.000Z\",\n  \"communicationId\": 1,\n  \"systemName\": \"ERP\",\n  \"source\": \"Postman\",\n  \"templateId\": 1,\n  \"productCode\": 2,\n  \"smsCode\": 3\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/feedback",
+            "description": "Ожидается HTTP 200, code = success, errorCode = пустая строка."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+                  "const body = pm.response.json();",
+                  "pm.test(\"code\", function () { pm.expect(body.code).to.eql(\"success\"); });",
+                  "pm.test(\"errorCode\", function () { pm.expect(body.errorCode).to.eql(\"\"); });",
+                  "pm.test(\"Нет ошибок\", function () { pm.expect(body.errorMessage).to.eql(\"\"); });",
+                  "pm.test(\"uid в ответе\", function () { pm.expect(body.uid).to.eql(\"1\"); pm.expect(body).not.to.have.property(\"uuid\"); });"
+                ]
+              }
+            }
+          ],
+          "response": []
+        },
+        {
+          "name": "02 — Только обязательные поля, communicationId = 1",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"uid\": \"1\",\n  \"operationUid\": \"operation-1\",\n  \"systemTime\": \"2026-10-06T10:00:00.000Z\",\n  \"communicationId\": 1\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/feedback",
+            "description": "Ожидается HTTP 200, code = success, errorCode = пустая строка."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+                  "const body = pm.response.json();",
+                  "pm.test(\"code\", function () { pm.expect(body.code).to.eql(\"success\"); });",
+                  "pm.test(\"errorCode\", function () { pm.expect(body.errorCode).to.eql(\"\"); });",
+                  "pm.test(\"Нет ошибок\", function () { pm.expect(body.errorMessage).to.eql(\"\"); });",
+                  "pm.test(\"uid в ответе\", function () { pm.expect(body.uid).to.eql(\"1\"); pm.expect(body).not.to.have.property(\"uuid\"); });"
+                ]
+              }
+            }
+          ],
+          "response": []
+        },
+        {
+          "name": "03 — communicationId = 100000",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"uid\": \"1\",\n  \"operationUid\": \"operation-1\",\n  \"systemTime\": \"2026-10-06T10:00:00.000Z\",\n  \"communicationId\": 100000\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/feedback",
+            "description": "Ожидается HTTP 200, code = success, errorCode = пустая строка."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+                  "const body = pm.response.json();",
+                  "pm.test(\"code\", function () { pm.expect(body.code).to.eql(\"success\"); });",
+                  "pm.test(\"errorCode\", function () { pm.expect(body.errorCode).to.eql(\"\"); });",
+                  "pm.test(\"Нет ошибок\", function () { pm.expect(body.errorMessage).to.eql(\"\"); });",
+                  "pm.test(\"uid в ответе\", function () { pm.expect(body.uid).to.eql(\"1\"); pm.expect(body).not.to.have.property(\"uuid\"); });"
+                ]
+              }
+            }
+          ],
+          "response": []
+        },
+        {
+          "name": "04 — uid и operationUid — по 32 символа",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"uid\": \"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\n  \"operationUid\": \"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\",\n  \"systemTime\": \"2026-10-06T10:00:00.000Z\",\n  \"communicationId\": 1\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/feedback",
+            "description": "Ожидается HTTP 200, code = success, errorCode = пустая строка."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+                  "const body = pm.response.json();",
+                  "pm.test(\"code\", function () { pm.expect(body.code).to.eql(\"success\"); });",
+                  "pm.test(\"errorCode\", function () { pm.expect(body.errorCode).to.eql(\"\"); });",
+                  "pm.test(\"Нет ошибок\", function () { pm.expect(body.errorMessage).to.eql(\"\"); });",
+                  "pm.test(\"uid в ответе\", function () { pm.expect(body.uid).to.eql(\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"); pm.expect(body).not.to.have.property(\"uuid\"); });"
+                ]
+              }
+            }
+          ],
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "02 Проверка uid",
+      "item": [
+        {
+          "name": "05 — uid отсутствует",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"operationUid\": \"operation-1\",\n  \"systemTime\": \"2026-10-06T10:00:00.000Z\",\n  \"communicationId\": 1\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/feedback",
+            "description": "Ожидается HTTP 400, code = failed, errorCode = ValidationException."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 400\", function () { pm.response.to.have.status(400); });",
+                  "const body = pm.response.json();",
+                  "pm.test(\"code\", function () { pm.expect(body.code).to.eql(\"failed\"); });",
+                  "pm.test(\"errorCode\", function () { pm.expect(body.errorCode).to.eql(\"ValidationException\"); });",
+                  "pm.test(\"Ошибка поля uid\", function () { pm.expect(body.errorMessage).to.include(\"uid:\"); });"
+                ]
+              }
+            }
+          ],
+          "response": []
+        },
+        {
+          "name": "06 — uid — null",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"uid\": null,\n  \"operationUid\": \"operation-1\",\n  \"systemTime\": \"2026-10-06T10:00:00.000Z\",\n  \"communicationId\": 1\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/feedback",
+            "description": "Ожидается HTTP 400, code = failed, errorCode = ValidationException."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 400\", function () { pm.response.to.have.status(400); });",
+                  "const body = pm.response.json();",
+                  "pm.test(\"code\", function () { pm.expect(body.code).to.eql(\"failed\"); });",
+                  "pm.test(\"errorCode\", function () { pm.expect(body.errorCode).to.eql(\"ValidationException\"); });",
+                  "pm.test(\"Ошибка поля uid\", function () { pm.expect(body.errorMessage).to.include(\"uid:\"); });"
+                ]
+              }
+            }
+          ],
+          "response": []
+        },
+        {
+          "name": "07 — uid — пустая строка",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"uid\": \"\",\n  \"operationUid\": \"operation-1\",\n  \"systemTime\": \"2026-10-06T10:00:00.000Z\",\n  \"communicationId\": 1\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/feedback",
+            "description": "Ожидается HTTP 400, code = failed, errorCode = ValidationException."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 400\", function () { pm.response.to.have.status(400); });",
+                  "const body = pm.response.json();",
+                  "pm.test(\"code\", function () { pm.expect(body.code).to.eql(\"failed\"); });",
+                  "pm.test(\"errorCode\", function () { pm.expect(body.errorCode).to.eql(\"ValidationException\"); });",
+                  "pm.test(\"Ошибка поля uid\", function () { pm.expect(body.errorMessage).to.include(\"uid:\"); });"
+                ]
+              }
+            }
+          ],
+          "response": []
+        },
+        {
+          "name": "08 — uid — только пробелы",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"uid\": \"   \",\n  \"operationUid\": \"operation-1\",\n  \"systemTime\": \"2026-10-06T10:00:00.000Z\",\n  \"communicationId\": 1\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/feedback",
+            "description": "Ожидается HTTP 400, code = failed, errorCode = ValidationException."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 400\", function () { pm.response.to.have.status(400); });",
+                  "const body = pm.response.json();",
+                  "pm.test(\"code\", function () { pm.expect(body.code).to.eql(\"failed\"); });",
+                  "pm.test(\"errorCode\", function () { pm.expect(body.errorCode).to.eql(\"ValidationException\"); });",
+                  "pm.test(\"Ошибка поля uid\", function () { pm.expect(body.errorMessage).to.include(\"uid:\"); });"
+                ]
+              }
+            }
+          ],
+          "response": []
+        },
+        {
+          "name": "09 — uid — 33 символа",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"uid\": \"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\n  \"operationUid\": \"operation-1\",\n  \"systemTime\": \"2026-10-06T10:00:00.000Z\",\n  \"communicationId\": 1\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/feedback",
+            "description": "Ожидается HTTP 400, code = failed, errorCode = ValidationException."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 400\", function () { pm.response.to.have.status(400); });",
+                  "const body = pm.response.json();",
+                  "pm.test(\"code\", function () { pm.expect(body.code).to.eql(\"failed\"); });",
+                  "pm.test(\"errorCode\", function () { pm.expect(body.errorCode).to.eql(\"ValidationException\"); });",
+                  "pm.test(\"Ошибка поля uid\", function () { pm.expect(body.errorMessage).to.include(\"uid:\"); });"
+                ]
+              }
+            }
+          ],
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "03 Проверка operationUid",
+      "item": [
+        {
+          "name": "10 — operationUid отсутствует",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"uid\": \"1\",\n  \"systemTime\": \"2026-10-06T10:00:00.000Z\",\n  \"communicationId\": 1\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/feedback",
+            "description": "Ожидается HTTP 400, code = failed, errorCode = ValidationException."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 400\", function () { pm.response.to.have.status(400); });",
+                  "const body = pm.response.json();",
+                  "pm.test(\"code\", function () { pm.expect(body.code).to.eql(\"failed\"); });",
+                  "pm.test(\"errorCode\", function () { pm.expect(body.errorCode).to.eql(\"ValidationException\"); });",
+                  "pm.test(\"Ошибка поля operationUid\", function () { pm.expect(body.errorMessage).to.include(\"operationUid:\"); });"
+                ]
+              }
+            }
+          ],
+          "response": []
+        },
+        {
+          "name": "11 — operationUid — null",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"uid\": \"1\",\n  \"operationUid\": null,\n  \"systemTime\": \"2026-10-06T10:00:00.000Z\",\n  \"communicationId\": 1\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/feedback",
+            "description": "Ожидается HTTP 400, code = failed, errorCode = ValidationException."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 400\", function () { pm.response.to.have.status(400); });",
+                  "const body = pm.response.json();",
+                  "pm.test(\"code\", function () { pm.expect(body.code).to.eql(\"failed\"); });",
+                  "pm.test(\"errorCode\", function () { pm.expect(body.errorCode).to.eql(\"ValidationException\"); });",
+                  "pm.test(\"Ошибка поля operationUid\", function () { pm.expect(body.errorMessage).to.include(\"operationUid:\"); });"
+                ]
+              }
+            }
+          ],
+          "response": []
+        },
+        {
+          "name": "12 — operationUid — пустая строка",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"uid\": \"1\",\n  \"operationUid\": \"\",\n  \"systemTime\": \"2026-10-06T10:00:00.000Z\",\n  \"communicationId\": 1\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/feedback",
+            "description": "Ожидается HTTP 400, code = failed, errorCode = ValidationException."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 400\", function () { pm.response.to.have.status(400); });",
+                  "const body = pm.response.json();",
+                  "pm.test(\"code\", function () { pm.expect(body.code).to.eql(\"failed\"); });",
+                  "pm.test(\"errorCode\", function () { pm.expect(body.errorCode).to.eql(\"ValidationException\"); });",
+                  "pm.test(\"Ошибка поля operationUid\", function () { pm.expect(body.errorMessage).to.include(\"operationUid:\"); });"
+                ]
+              }
+            }
+          ],
+          "response": []
+        },
+        {
+          "name": "13 — operationUid — только пробелы",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"uid\": \"1\",\n  \"operationUid\": \"   \",\n  \"systemTime\": \"2026-10-06T10:00:00.000Z\",\n  \"communicationId\": 1\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/feedback",
+            "description": "Ожидается HTTP 400, code = failed, errorCode = ValidationException."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 400\", function () { pm.response.to.have.status(400); });",
+                  "const body = pm.response.json();",
+                  "pm.test(\"code\", function () { pm.expect(body.code).to.eql(\"failed\"); });",
+                  "pm.test(\"errorCode\", function () { pm.expect(body.errorCode).to.eql(\"ValidationException\"); });",
+                  "pm.test(\"Ошибка поля operationUid\", function () { pm.expect(body.errorMessage).to.include(\"operationUid:\"); });"
+                ]
+              }
+            }
+          ],
+          "response": []
+        },
+        {
+          "name": "14 — operationUid — 33 символа",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"uid\": \"1\",\n  \"operationUid\": \"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\n  \"systemTime\": \"2026-10-06T10:00:00.000Z\",\n  \"communicationId\": 1\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/feedback",
+            "description": "Ожидается HTTP 400, code = failed, errorCode = ValidationException."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 400\", function () { pm.response.to.have.status(400); });",
+                  "const body = pm.response.json();",
+                  "pm.test(\"code\", function () { pm.expect(body.code).to.eql(\"failed\"); });",
+                  "pm.test(\"errorCode\", function () { pm.expect(body.errorCode).to.eql(\"ValidationException\"); });",
+                  "pm.test(\"Ошибка поля operationUid\", function () { pm.expect(body.errorMessage).to.include(\"operationUid:\"); });"
+                ]
+              }
+            }
+          ],
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "04 Проверка systemTime",
+      "item": [
+        {
+          "name": "15 — systemTime отсутствует",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"uid\": \"1\",\n  \"operationUid\": \"operation-1\",\n  \"communicationId\": 1\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/feedback",
+            "description": "Ожидается HTTP 400, code = failed, errorCode = ValidationException."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 400\", function () { pm.response.to.have.status(400); });",
+                  "const body = pm.response.json();",
+                  "pm.test(\"code\", function () { pm.expect(body.code).to.eql(\"failed\"); });",
+                  "pm.test(\"errorCode\", function () { pm.expect(body.errorCode).to.eql(\"ValidationException\"); });",
+                  "pm.test(\"Ошибка поля systemTime\", function () { pm.expect(body.errorMessage).to.include(\"systemTime:\"); });"
+                ]
+              }
+            }
+          ],
+          "response": []
+        },
+        {
+          "name": "16 — systemTime — null",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"uid\": \"1\",\n  \"operationUid\": \"operation-1\",\n  \"systemTime\": null,\n  \"communicationId\": 1\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/feedback",
+            "description": "Ожидается HTTP 400, code = failed, errorCode = ValidationException."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 400\", function () { pm.response.to.have.status(400); });",
+                  "const body = pm.response.json();",
+                  "pm.test(\"code\", function () { pm.expect(body.code).to.eql(\"failed\"); });",
+                  "pm.test(\"errorCode\", function () { pm.expect(body.errorCode).to.eql(\"ValidationException\"); });",
+                  "pm.test(\"Ошибка поля systemTime\", function () { pm.expect(body.errorMessage).to.include(\"systemTime:\"); });"
+                ]
+              }
+            }
+          ],
+          "response": []
+        },
+        {
+          "name": "17 — systemTime — пустая строка",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"uid\": \"1\",\n  \"operationUid\": \"operation-1\",\n  \"systemTime\": \"\",\n  \"communicationId\": 1\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/feedback",
+            "description": "Ожидается HTTP 400, code = failed, errorCode = ValidationException."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 400\", function () { pm.response.to.have.status(400); });",
+                  "const body = pm.response.json();",
+                  "pm.test(\"code\", function () { pm.expect(body.code).to.eql(\"failed\"); });",
+                  "pm.test(\"errorCode\", function () { pm.expect(body.errorCode).to.eql(\"ValidationException\"); });",
+                  "pm.test(\"Ошибка поля systemTime\", function () { pm.expect(body.errorMessage).to.include(\"systemTime:\"); });"
+                ]
+              }
+            }
+          ],
+          "response": []
+        },
+        {
+          "name": "18 — systemTime — только пробелы",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"uid\": \"1\",\n  \"operationUid\": \"operation-1\",\n  \"systemTime\": \"   \",\n  \"communicationId\": 1\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/feedback",
+            "description": "Ожидается HTTP 400, code = failed, errorCode = ValidationException."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 400\", function () { pm.response.to.have.status(400); });",
+                  "const body = pm.response.json();",
+                  "pm.test(\"code\", function () { pm.expect(body.code).to.eql(\"failed\"); });",
+                  "pm.test(\"errorCode\", function () { pm.expect(body.errorCode).to.eql(\"ValidationException\"); });",
+                  "pm.test(\"Ошибка поля systemTime\", function () { pm.expect(body.errorMessage).to.include(\"systemTime:\"); });"
+                ]
+              }
+            }
+          ],
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "05 Проверка communicationId",
+      "item": [
+        {
+          "name": "19 — communicationId отсутствует",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"uid\": \"1\",\n  \"operationUid\": \"operation-1\",\n  \"systemTime\": \"2026-10-06T10:00:00.000Z\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/feedback",
+            "description": "Ожидается HTTP 400, code = failed, errorCode = ValidationException."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 400\", function () { pm.response.to.have.status(400); });",
+                  "const body = pm.response.json();",
+                  "pm.test(\"code\", function () { pm.expect(body.code).to.eql(\"failed\"); });",
+                  "pm.test(\"errorCode\", function () { pm.expect(body.errorCode).to.eql(\"ValidationException\"); });",
+                  "pm.test(\"Ошибка поля communicationId\", function () { pm.expect(body.errorMessage).to.include(\"communicationId:\"); });"
+                ]
+              }
+            }
+          ],
+          "response": []
+        },
+        {
+          "name": "20 — communicationId = null",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"uid\": \"1\",\n  \"operationUid\": \"operation-1\",\n  \"systemTime\": \"2026-10-06T10:00:00.000Z\",\n  \"communicationId\": null\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/feedback",
+            "description": "Ожидается HTTP 400, code = failed, errorCode = ValidationException."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 400\", function () { pm.response.to.have.status(400); });",
+                  "const body = pm.response.json();",
+                  "pm.test(\"code\", function () { pm.expect(body.code).to.eql(\"failed\"); });",
+                  "pm.test(\"errorCode\", function () { pm.expect(body.errorCode).to.eql(\"ValidationException\"); });",
+                  "pm.test(\"Ошибка поля communicationId\", function () { pm.expect(body.errorMessage).to.include(\"communicationId:\"); });"
+                ]
+              }
+            }
+          ],
+          "response": []
+        },
+        {
+          "name": "21 — communicationId = -1",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"uid\": \"1\",\n  \"operationUid\": \"operation-1\",\n  \"systemTime\": \"2026-10-06T10:00:00.000Z\",\n  \"communicationId\": -1\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/feedback",
+            "description": "Ожидается HTTP 400, code = failed, errorCode = ValidationException."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 400\", function () { pm.response.to.have.status(400); });",
+                  "const body = pm.response.json();",
+                  "pm.test(\"code\", function () { pm.expect(body.code).to.eql(\"failed\"); });",
+                  "pm.test(\"errorCode\", function () { pm.expect(body.errorCode).to.eql(\"ValidationException\"); });",
+                  "pm.test(\"Ошибка поля communicationId\", function () { pm.expect(body.errorMessage).to.include(\"communicationId:\"); });"
+                ]
+              }
+            }
+          ],
+          "response": []
+        },
+        {
+          "name": "22 — communicationId = 0",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"uid\": \"1\",\n  \"operationUid\": \"operation-1\",\n  \"systemTime\": \"2026-10-06T10:00:00.000Z\",\n  \"communicationId\": 0\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/feedback",
+            "description": "Ожидается HTTP 400, code = failed, errorCode = ValidationException."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 400\", function () { pm.response.to.have.status(400); });",
+                  "const body = pm.response.json();",
+                  "pm.test(\"code\", function () { pm.expect(body.code).to.eql(\"failed\"); });",
+                  "pm.test(\"errorCode\", function () { pm.expect(body.errorCode).to.eql(\"ValidationException\"); });",
+                  "pm.test(\"Ошибка поля communicationId\", function () { pm.expect(body.errorMessage).to.include(\"communicationId:\"); });"
+                ]
+              }
+            }
+          ],
+          "response": []
+        },
+        {
+          "name": "23 — communicationId = 100001",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"uid\": \"1\",\n  \"operationUid\": \"operation-1\",\n  \"systemTime\": \"2026-10-06T10:00:00.000Z\",\n  \"communicationId\": 100001\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/feedback",
+            "description": "Ожидается HTTP 400, code = failed, errorCode = ValidationException."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 400\", function () { pm.response.to.have.status(400); });",
+                  "const body = pm.response.json();",
+                  "pm.test(\"code\", function () { pm.expect(body.code).to.eql(\"failed\"); });",
+                  "pm.test(\"errorCode\", function () { pm.expect(body.errorCode).to.eql(\"ValidationException\"); });",
+                  "pm.test(\"Ошибка поля communicationId\", function () { pm.expect(body.errorMessage).to.include(\"communicationId:\"); });"
+                ]
+              }
+            }
+          ],
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "06 Все ошибки вместе",
+      "item": [
+        {
+          "name": "24 — Все обязательные поля отсутствуют",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/feedback",
+            "description": "Ожидается HTTP 400, code = failed, errorCode = ValidationException."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 400\", function () { pm.response.to.have.status(400); });",
+                  "const body = pm.response.json();",
+                  "pm.test(\"code\", function () { pm.expect(body.code).to.eql(\"failed\"); });",
+                  "pm.test(\"errorCode\", function () { pm.expect(body.errorCode).to.eql(\"ValidationException\"); });",
+                  "pm.test(\"Ошибка поля uid\", function () { pm.expect(body.errorMessage).to.include(\"uid:\"); });",
+                  "pm.test(\"Ошибка поля operationUid\", function () { pm.expect(body.errorMessage).to.include(\"operationUid:\"); });",
+                  "pm.test(\"Ошибка поля systemTime\", function () { pm.expect(body.errorMessage).to.include(\"systemTime:\"); });",
+                  "pm.test(\"Ошибка поля communicationId\", function () { pm.expect(body.errorMessage).to.include(\"communicationId:\"); });"
+                ]
+              }
+            }
+          ],
+          "response": []
+        },
+        {
+          "name": "25 — Нарушены ограничения всех четырёх полей",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"uid\": \"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\n  \"operationUid\": \"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\",\n  \"systemTime\": \" \",\n  \"communicationId\": 100001\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/feedback",
+            "description": "Ожидается HTTP 400, code = failed, errorCode = ValidationException."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 400\", function () { pm.response.to.have.status(400); });",
+                  "const body = pm.response.json();",
+                  "pm.test(\"code\", function () { pm.expect(body.code).to.eql(\"failed\"); });",
+                  "pm.test(\"errorCode\", function () { pm.expect(body.errorCode).to.eql(\"ValidationException\"); });",
+                  "pm.test(\"Ошибка поля uid\", function () { pm.expect(body.errorMessage).to.include(\"uid:\"); });",
+                  "pm.test(\"Ошибка поля operationUid\", function () { pm.expect(body.errorMessage).to.include(\"operationUid:\"); });",
+                  "pm.test(\"Ошибка поля systemTime\", function () { pm.expect(body.errorMessage).to.include(\"systemTime:\"); });",
+                  "pm.test(\"Ошибка поля communicationId\", function () { pm.expect(body.errorMessage).to.include(\"communicationId:\"); });"
+                ]
+              }
+            }
+          ],
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "07 Собственное исключение",
+      "item": [
+        {
+          "name": "26 — uid = 123",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"uid\": \"123\",\n  \"operationUid\": \"operation-1\",\n  \"systemTime\": \"2026-10-06T10:00:00.000Z\",\n  \"communicationId\": 1\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/feedback",
+            "description": "Ожидается HTTP 400, code = failed, errorCode = UnsupportedCodeException."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 400\", function () { pm.response.to.have.status(400); });",
+                  "const body = pm.response.json();",
+                  "pm.test(\"code\", function () { pm.expect(body.code).to.eql(\"failed\"); });",
+                  "pm.test(\"errorCode\", function () { pm.expect(body.errorCode).to.eql(\"UnsupportedCodeException\"); });",
+                  "pm.test(\"Сообщение исключения\", function () { pm.expect(body.errorMessage).to.eql(\"Не поддерживаемая ошибка\"); pm.expect(body.uid).to.eql(\"123\"); });"
+                ]
+              }
+            }
+          ],
+          "response": []
+        },
+        {
+          "name": "27 — uid = 123 и отсутствует systemTime",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"uid\": \"123\",\n  \"operationUid\": \"operation-1\",\n  \"communicationId\": 1\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/feedback",
+            "description": "Ожидается HTTP 400, code = failed, errorCode = ValidationException."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 400\", function () { pm.response.to.have.status(400); });",
+                  "const body = pm.response.json();",
+                  "pm.test(\"code\", function () { pm.expect(body.code).to.eql(\"failed\"); });",
+                  "pm.test(\"errorCode\", function () { pm.expect(body.errorCode).to.eql(\"ValidationException\"); });",
+                  "pm.test(\"Ошибка поля systemTime\", function () { pm.expect(body.errorMessage).to.include(\"systemTime:\"); });"
+                ]
+              }
+            }
+          ],
+          "response": []
+        }
+      ]
+    }
+  ]
+}
