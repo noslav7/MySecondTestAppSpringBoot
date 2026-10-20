@@ -49,29 +49,39 @@ public class MyController {
                 .errorCode(ErrorCodes.EMPTY)
                 .errorMessage(ErrorMessages.EMPTY)
                 .build();
+        log.info("Created response: {}", response);
 
         try {
             validationService.isValid(bindingResult);
             if ("123".equals(request.getUid())) {
+                log.error("Unsupported request uid={}: Не поддерживаемая ошибка", request.getUid());
                 throw new UnsupportedCodeException("Не поддерживаемая ошибка");
             }
         } catch (ValidationFailedException e) {
+            log.error("Request validation failed, uid={}: {}", request.getUid(), e.getMessage(), e);
             response.setCode(Codes.FAILED);
             response.setErrorCode(ErrorCodes.VALIDATION_EXCEPTION);
             response.setErrorMessage(ErrorMessages.VALIDATION);
-            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+            return buildResponse(response, HttpStatus.BAD_REQUEST);
         } catch (UnsupportedCodeException e) {
+            log.error("Request is unsupported, uid={}: {}", request.getUid(), e.getMessage(), e);
             response.setCode(Codes.FAILED);
             response.setErrorCode(ErrorCodes.UNSUPPORTED_EXCEPTION);
             response.setErrorMessage(ErrorMessages.UNSUPORTED);
-            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+            return buildResponse(response, HttpStatus.BAD_REQUEST);
         } catch (Exception e) {
+            log.error("Unexpected request processing error, uid={}", request.getUid(), e);
             response.setCode(Codes.FAILED);
             response.setErrorCode(ErrorCodes.UNKNOWN_EXCEPTION);
             response.setErrorMessage(ErrorMessages.UNKNOWN);
-            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+            return buildResponse(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
-        return new ResponseEntity<>(response, HttpStatus.OK);
+        return buildResponse(response, HttpStatus.OK);
+    }
+
+    private ResponseEntity<Response> buildResponse(Response response, HttpStatus status) {
+        log.info("Returning response, status={}: {}", status.value(), response);
+        return new ResponseEntity<>(response, status);
     }
 }

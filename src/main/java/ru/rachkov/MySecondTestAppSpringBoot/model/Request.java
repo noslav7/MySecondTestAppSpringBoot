@@ -23,7 +23,7 @@ public class Request {
     @NotBlank(message = "обязательное поле не должно быть пустым")
     @Size(max = 32, message = "длина не должна превышать 32 символа")
     private String operationUid;
-    private String systemName;
+    private Systems systemName;
 
     @NotBlank(message = "обязательное поле не должно быть пустым")
     private String systemTime;
