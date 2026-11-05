@@ -2,6 +2,7 @@ package ru.rachkov.MySecondTestAppSpringBoot.controller;
 
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
@@ -16,6 +17,8 @@ import ru.rachkov.MySecondTestAppSpringBoot.model.ErrorMessages;
 import ru.rachkov.MySecondTestAppSpringBoot.model.Request;
 import ru.rachkov.MySecondTestAppSpringBoot.model.Response;
 import ru.rachkov.MySecondTestAppSpringBoot.service.ValidationService;
+import ru.rachkov.MySecondTestAppSpringBoot.service.ModifyRequestService;
+import ru.rachkov.MySecondTestAppSpringBoot.service.ModifyResponseService;
 import ru.rachkov.MySecondTestAppSpringBoot.util.DateTimeUtil;
 
 import java.text.SimpleDateFormat;
@@ -27,9 +30,15 @@ import java.util.TimeZone;
 public class MyController {
 
     private final ValidationService validationService;
+    private final ModifyResponseService modifyResponseService;
+    private final ModifyRequestService modifyRequestService;
 
-    public MyController(ValidationService validationService) {
+    public MyController(ValidationService validationService,
+                        @Qualifier("ModifySystemTimeResponseService") ModifyResponseService modifyResponseService,
+                        ModifyRequestService modifyRequestService) {
         this.validationService = validationService;
+        this.modifyResponseService = modifyResponseService;
+        this.modifyRequestService = modifyRequestService;
     }
 
     @PostMapping(value = "/feedback")
@@ -57,6 +66,8 @@ public class MyController {
                 log.error("Unsupported request uid={}: Не поддерживаемая ошибка", request.getUid());
                 throw new UnsupportedCodeException("Не поддерживаемая ошибка");
             }
+            response = modifyResponseService.modify(response);
+            modifyRequestService.modify(request);
         } catch (ValidationFailedException e) {
             log.error("Request validation failed, uid={}: {}", request.getUid(), e.getMessage(), e);
             response.setCode(Codes.FAILED);
