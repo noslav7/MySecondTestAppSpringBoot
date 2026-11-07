@@ -25,7 +25,11 @@ public class Request {
     private String systemName;
 
     private String systemTime;
+
     private String source;
+
+    // Service 1 receipt time in milliseconds since the Unix epoch.
+    private Long service1ReceivedAt;
 
     @NotNull(message = "обязательное поле")
     @Min(value = 1, message = "значение должно быть не меньше 1")
@@ -44,6 +48,7 @@ public class Request {
                 ", systemName='" + systemName + '\'' +
                 ", systemTime='" + systemTime + '\'' +
                 ", source='" + source + '\'' +
+                ", service1ReceivedAt=" + service1ReceivedAt +
                 ", communicationId=" + communicationId +
                 ", templateId=" + templateId +
                 ", productCode=" + productCode +

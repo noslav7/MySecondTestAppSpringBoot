@@ -1,5 +1,6 @@
 package ru.rachkov.MySecondTestAppSpringBoot.controller;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -20,6 +21,7 @@ import ru.rachkov.MySecondTestAppSpringBoot.service.ValidationService;
 import ru.rachkov.MySecondTestAppSpringBoot.service.ModifyRequestService;
 import ru.rachkov.MySecondTestAppSpringBoot.service.ModifyResponseService;
 import ru.rachkov.MySecondTestAppSpringBoot.util.DateTimeUtil;
+import ru.rachkov.MySecondTestAppSpringBoot.filter.RequestReceivedTimeFilter;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -43,8 +45,10 @@ public class MyController {
 
     @PostMapping(value = "/feedback")
     public ResponseEntity<Response> feedback(@Valid @RequestBody Request request,
-                                              BindingResult bindingResult) {
+                                              BindingResult bindingResult, HttpServletRequest httpRequest) {
 
+        // Always overwrite the incoming value: Service 1 owns this timestamp.
+        request.setService1ReceivedAt(RequestReceivedTimeFilter.receivedAt(httpRequest));
         log.info("request: {}", request);
 
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
