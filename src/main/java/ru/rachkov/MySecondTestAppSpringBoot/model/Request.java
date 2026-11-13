@@ -5,6 +5,8 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.PositiveOrZero;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -28,6 +30,18 @@ public class Request {
 
     private String source;
 
+    // Данные для расчёта премии: передаются вместе или полностью отсутствуют.
+    private Positions position;
+
+    @PositiveOrZero(message = "оклад не может быть отрицательным")
+    private Double salary;
+
+    @PositiveOrZero(message = "множитель премии не может быть отрицательным")
+    private Double bonus;
+
+    @Positive(message = "количество рабочих дней должно быть больше нуля")
+    private Integer workDays;
+
     // Service 1 receipt time in milliseconds since the Unix epoch.
     private Long service1ReceivedAt;
 
@@ -48,6 +62,10 @@ public class Request {
                 ", systemName='" + systemName + '\'' +
                 ", systemTime='" + systemTime + '\'' +
                 ", source='" + source + '\'' +
+                ", position=" + position +
+                ", salary=" + salary +
+                ", bonus=" + bonus +
+                ", workDays=" + workDays +
                 ", service1ReceivedAt=" + service1ReceivedAt +
                 ", communicationId=" + communicationId +
                 ", templateId=" + templateId +

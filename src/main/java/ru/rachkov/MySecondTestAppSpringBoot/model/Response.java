@@ -13,4 +13,7 @@ public class Response {
     private Codes code;
     private ErrorCodes errorCode;
     private ErrorMessages errorMessage;
+
+    // Результат расчёта; null, если запрос не содержал данных для премии.
+    private Double annualBonus;
 }

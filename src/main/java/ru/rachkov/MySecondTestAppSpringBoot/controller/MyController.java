@@ -17,6 +17,7 @@ import ru.rachkov.MySecondTestAppSpringBoot.model.ErrorCodes;
 import ru.rachkov.MySecondTestAppSpringBoot.model.ErrorMessages;
 import ru.rachkov.MySecondTestAppSpringBoot.model.Request;
 import ru.rachkov.MySecondTestAppSpringBoot.model.Response;
+import ru.rachkov.MySecondTestAppSpringBoot.service.AnnualBonusService;
 import ru.rachkov.MySecondTestAppSpringBoot.service.ValidationService;
 import ru.rachkov.MySecondTestAppSpringBoot.service.ModifyRequestService;
 import ru.rachkov.MySecondTestAppSpringBoot.service.ModifyResponseService;
@@ -34,13 +35,16 @@ public class MyController {
     private final ValidationService validationService;
     private final ModifyResponseService modifyResponseService;
     private final ModifyRequestService modifyRequestService;
+    private final AnnualBonusService annualBonusService;
 
     public MyController(ValidationService validationService,
                         @Qualifier("ModifySystemTimeResponseService") ModifyResponseService modifyResponseService,
-                        ModifyRequestService modifyRequestService) {
+                        ModifyRequestService modifyRequestService,
+                        AnnualBonusService annualBonusService) {
         this.validationService = validationService;
         this.modifyResponseService = modifyResponseService;
         this.modifyRequestService = modifyRequestService;
+        this.annualBonusService = annualBonusService;
     }
 
     @PostMapping(value = "/feedback")
@@ -70,8 +74,10 @@ public class MyController {
                 log.error("Unsupported request uid={}: Не поддерживаемая ошибка", request.getUid());
                 throw new UnsupportedCodeException("Не поддерживаемая ошибка");
             }
+            Double annualBonus = calculateAnnualBonus(request);
             response = modifyResponseService.modify(response);
             modifyRequestService.modify(request);
+            response.setAnnualBonus(annualBonus);
         } catch (ValidationFailedException e) {
             log.error("Request validation failed, uid={}: {}", request.getUid(), e.getMessage(), e);
             response.setCode(Codes.FAILED);
@@ -93,6 +99,20 @@ public class MyController {
         }
 
         return buildResponse(response, HttpStatus.OK);
+    }
+
+    private Double calculateAnnualBonus(Request request) throws ValidationFailedException {
+        if (request.getPosition() == null && request.getSalary() == null
+                && request.getBonus() == null && request.getWorkDays() == null) {
+            return null;
+        }
+        if (request.getPosition() == null || request.getSalary() == null
+                || request.getBonus() == null || request.getWorkDays() == null) {
+            throw new ValidationFailedException(
+                    "Для расчёта премии нужно передать position, salary, bonus и workDays вместе");
+        }
+        return annualBonusService.calculate(request.getPosition(), request.getSalary(),
+                request.getBonus(), request.getWorkDays());
     }
 
     private ResponseEntity<Response> buildResponse(Response response, HttpStatus status) {
