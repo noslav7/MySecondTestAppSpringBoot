@@ -5,12 +5,14 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.client.MockRestServiceServer;
 import org.springframework.test.web.client.match.MockRestRequestMatchers;
 import org.springframework.test.web.servlet.MockMvc;
@@ -20,14 +22,19 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.context.WebApplicationContext;
 import tools.jackson.databind.json.JsonMapper;
 
+import java.time.Clock;
+import java.time.Instant;
+import java.time.ZoneOffset;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.stream.Stream;
 
 import static org.hamcrest.Matchers.closeTo;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
+import static org.springframework.test.web.client.response.MockRestResponseCreators.withServerError;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -43,11 +50,16 @@ class AnnualBonusControllerTests {
     @Autowired
     private RestTemplate restTemplate;
 
+    @MockitoBean
+    private Clock clock;
+
     private MockMvc mockMvc;
     private MockRestServiceServer server;
 
     @BeforeEach
     void setUp() {
+        when(clock.instant()).thenReturn(Instant.parse("2026-01-01T00:00:00Z"));
+        when(clock.getZone()).thenReturn(ZoneOffset.UTC);
         mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
         server = MockRestServiceServer.bindTo(restTemplate).build();
     }
@@ -81,6 +93,42 @@ class AnnualBonusControllerTests {
         server.expect(requestTo("http://localhost:8084/feedback")).andRespond(withSuccess());
 
         send(baseRequest()).andExpect(status().isOk())
+                .andExpect(jsonPath("$.annualBonus").isEmpty());
+    }
+
+    @ParameterizedTest
+    @CsvSource({"PO, 613200", "TPM, 657000", "CTO, 766500"})
+    void acceptsNewPositions(String position, double expected) throws Exception {
+        server.expect(requestTo("http://localhost:8084/feedback"))
+                .andExpect(MockRestRequestMatchers.jsonPath("$.position").value(position))
+                .andRespond(withSuccess());
+        Map<String, Object> request = bonusRequest();
+        request.put("position", position);
+
+        send(request).andExpect(status().isOk())
+                .andExpect(jsonPath("$.annualBonus").value(closeTo(expected, 0.000001)));
+    }
+
+    @Test
+    void rejectsUnsupportedUidWithoutForwardingRequest() throws Exception {
+        Map<String, Object> request = bonusRequest();
+        request.put("uid", "123");
+
+        send(request).andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.uid").value("123"))
+                .andExpect(jsonPath("$.code").value("failed"))
+                .andExpect(jsonPath("$.errorCode").value("UnsupportedException"))
+                .andExpect(jsonPath("$.annualBonus").isEmpty());
+    }
+
+    @Test
+    void returnsServerErrorWhenForwardingFails() throws Exception {
+        server.expect(requestTo("http://localhost:8084/feedback")).andRespond(withServerError());
+
+        send(bonusRequest()).andExpect(status().isInternalServerError())
+                .andExpect(jsonPath("$.uid").value("3"))
+                .andExpect(jsonPath("$.code").value("failed"))
+                .andExpect(jsonPath("$.errorCode").value("UnknownException"))
                 .andExpect(jsonPath("$.annualBonus").isEmpty());
     }
 

@@ -5,13 +5,18 @@ import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import ru.rachkov.MySecondTestAppSpringBoot.model.Positions;
 
+import java.time.Clock;
+import java.time.Instant;
+import java.time.ZoneOffset;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.within;
 
 class AnnualBonusServiceTests {
 
-    private final AnnualBonusService service = new AnnualBonusServiceImpl();
+    private final AnnualBonusService service = new AnnualBonusServiceImpl(
+            Clock.fixed(Instant.parse("2026-01-01T00:00:00Z"), ZoneOffset.UTC));
 
     @ParameterizedTest
     @CsvSource({
@@ -33,5 +38,21 @@ class AnnualBonusServiceTests {
     void rejectsNonPositiveWorkDays(int workDays) {
         assertThatThrownBy(() -> service.calculate(Positions.DEV, 100000, 1.5, workDays))
                 .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @ParameterizedTest
+    @CsvSource({
+            "2026-01-01T00:00:00Z, 365000",
+            "2024-02-29T00:00:00Z, 366000",
+            "1900-03-01T00:00:00Z, 365000",
+            "2000-03-01T00:00:00Z, 366000",
+            "2100-03-01T00:00:00Z, 365000"
+    })
+    void usesActualLengthOfYear(String instant, double expected) {
+        AnnualBonusService datedService = new AnnualBonusServiceImpl(
+                Clock.fixed(Instant.parse(instant), ZoneOffset.UTC));
+
+        assertThat(datedService.calculate(Positions.HR, 100000, 2, 240))
+                .isCloseTo(expected, within(0.000001));
     }
 }
